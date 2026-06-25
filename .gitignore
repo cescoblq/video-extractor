@@ -1,0 +1,17 @@
+# Vidéos et fichiers de travail
+pages/
+recovered/
+source.html
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Divers
+.env
+*.bak
+*.pem
+*.key
