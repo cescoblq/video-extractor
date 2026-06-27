@@ -1,15 +1,55 @@
 #!/usr/bin/env python3
-"""Extrait et télécharge des vidéos embarquées dans des pages HTML.
+"""
+╔══════════════════════════════════════════════════════════════════╗
+║                      video_extractor.py                         ║
+║          Extraction de vidéos embarquées dans des pages HTML    ║
+╚══════════════════════════════════════════════════════════════════╝
 
-Plateformes supportées : Wistia (Kajabi), LearnyBox, Loom (Skool)
-
-Usage:
+USAGE
     python3 video_extractor.py [dossier_pages] [dossier_sortie]
 
-Par défaut : lit pages/*.html, écrit dans recovered/
-Log : <dossier_sortie>/extract.log
+    dossier_pages   : dossier contenant les .html sources  (défaut : pages/)
+    dossier_sortie  : dossier de destination des .mp4      (défaut : recovered/)
 
-Loom : déposer un fichier *cookies*.txt (export Netscape) à la racine du projet.
+    Les vidéos déjà présentes dans dossier_sortie sont automatiquement skippées.
+    Les vidéos sont nommées d'après le fichier HTML source (ex : "01 - Intro.html"
+    → "01 - Intro.mp4"). Si une page contient plusieurs vidéos : _1, _2, etc.
+
+LOG
+    Un fichier extract.log est écrit dans dossier_sortie à chaque exécution.
+
+PLATEFORMES SUPPORTÉES
+    ┌─────────────────┬───────────────────────────┬──────────────────────┐
+    │ Plateforme      │ Détection                 │ Auth requise         │
+    ├─────────────────┼───────────────────────────┼──────────────────────┤
+    │ Wistia (Kajabi) │ wistia_async_* dans HTML  │ Non                  │
+    │ LearnyBox       │ learnybox.com dans HTML   │ Non                  │
+    │ Loom (Skool…)   │ loom.com/share/* dans HTML│ Cookies (voir ci-bas)│
+    └─────────────────┴───────────────────────────┴──────────────────────┘
+
+COOKIES (Loom uniquement)
+    Déposer un fichier *cookies*.txt au format Netscape HTTP Cookie File
+    à la racine du projet (même dossier que ce script).
+    Le script le détecte automatiquement via glob("*cookies*.txt").
+
+    Export depuis Chrome : extension "Get cookies.txt LOCALLY" (Chrome Web Store).
+    → Se connecter à la plateforme hôte (ex : skool.com), exporter, déposer ici.
+
+    Les cookies Skool suffisent pour les vidéos Loom embedées dans Skool
+    (les vidéos sont unlisted/publiques côté Loom — pas besoin de cookies loom.com).
+
+    Expiration : vérifier les dates dans le fichier (colonne 5 = timestamp Unix).
+    Ré-exporter via l'extension dès expiration.
+
+DÉPENDANCES
+    - Python 3.10+ (walrus operator :=)
+    - yt-dlp  : requis uniquement pour Loom  →  uv tool install yt-dlp
+    - ffmpeg  : optionnel, améliore la qualité yt-dlp si présent
+
+CHANGEMENT DE MACHINE
+    Le fichier cookies est dans .gitignore — non versionné.
+    À copier manuellement (clé USB, etc.) sur chaque nouvelle machine.
+    Le script lui-même est versionné sur github.com/cescoblq/video-extractor.
 """
 import logging
 import subprocess
